@@ -6,6 +6,8 @@ import cors from "cors";
 //internal imports
 import { dbConnect } from "./utils/db";
 import userRoutes from "./routes/userRoutes";
+import accountRoutes from "./routes/accountRoutes";
+
 import verifyToken from "./middleware/auth";
 //app setup
 const app = express();
@@ -22,3 +24,5 @@ app.get("/alive", (req, res) => {
 });
 //user routes
 app.use("/api/v1/user", userRoutes);
+//account routes
+app.use("/api/v1/account", verifyToken, accountRoutes);

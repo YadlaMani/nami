@@ -4,6 +4,7 @@ import { z } from "zod";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { unescapeLeadingUnderscores } from "typescript";
+import Account from "../models/Account";
 const signupSchema = z.object({
   username: z
     .string()
@@ -30,6 +31,11 @@ export const registerUser = async (req: Request, res: Response) => {
         lastname,
       });
       await newUser.save();
+      const account = await Account.create({
+        holder: newUser,
+        balance: Number((1 + Math.random() * 1000).toFixed(2)),
+      });
+      await account.save();
       const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!);
       res.status(200).json({
         message: "User created successfully",
