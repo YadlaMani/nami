@@ -1,13 +1,16 @@
 //external imports
 import express from "express";
 import "dotenv/config";
+import cors from "cors";
+
 //internal imports
 import { dbConnect } from "./utils/db";
 import userRoutes from "./routes/userRoutes";
-
+import verifyToken from "./middleware/auth";
 //app setup
 const app = express();
 app.use(express.json());
+app.use(cors());
 dbConnect();
 const PORT = process.env.PORT || 5555;
 app.listen(PORT, () => {
