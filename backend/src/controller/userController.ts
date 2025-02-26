@@ -3,6 +3,7 @@ import User from "../models/User";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { unescapeLeadingUnderscores } from "typescript";
 const signupSchema = z.object({
   username: z
     .string()
@@ -136,4 +137,27 @@ export const editUser = async (req: Request, res: Response) => {
       error: err,
     });
   }
+};
+export const getUsers = async (req: Request, res: Response) => {
+  const filter = req.query.filter || "";
+
+  const users = await User.find({
+    $or: [
+      {
+        firstname: {
+          $regex: filter,
+          $options: "i",
+        },
+      },
+      {
+        lastname: {
+          $regex: filter,
+          $options: "i",
+        },
+      },
+    ],
+  });
+  res.json({
+    users: users,
+  });
 };
