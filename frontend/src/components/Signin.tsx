@@ -1,12 +1,37 @@
 import { useState } from "react";
-
+import axios from "axios";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 export default function Signin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleSubmit = (e: Event) => {
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState({
+    username: "",
+    password: "",
+  });
+  const navigate = useNavigate();
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Email:", email, "Password:", password);
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/v1/user/signIn`,
+        user
+      );
+      console.log(res.data);
+      if (res.status === 200) {
+        localStorage.setItem("token", res.data.token);
+
+        toast.success("User login successfully");
+        navigate("/dashboard");
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -18,14 +43,14 @@ export default function Signin() {
         <form className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Email
+              Username
             </label>
             <input
-              type="email"
-              placeholder="Enter your email"
+              type="username"
+              placeholder="Enter your username"
               className="mt-1 w-full rounded-lg border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={user.username}
+              onChange={(e) => setUser({ ...user, username: e.target.value })}
               required
             />
           </div>
@@ -37,16 +62,18 @@ export default function Signin() {
               type="password"
               placeholder="Enter your password"
               className="mt-1 w-full rounded-lg border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={user.password}
+              onChange={(e) => setUser({ ...user, password: e.target.value })}
               required
             />
           </div>
+
           <button
             type="submit"
             className="w-full rounded-lg bg-blue-600 p-2 text-white transition hover:bg-blue-700"
+            onClick={(e) => handleSubmit(e)}
           >
-            Login
+            {loading ? "Loading..." : "Login"}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
